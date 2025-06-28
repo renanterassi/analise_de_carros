@@ -139,6 +139,57 @@ medidas <- data.frame(
 # Mostrar a tabela
 medidas
 ```
+```r
+# Carregar o conjunto de dados
+dados <- read.csv("car_prices.csv")
+
+# Carregar pacotes
+library(dplyr)
+
+# Criar as faixas de quilometragem
+dados <- dados %>%
+  mutate(km_faixa = case_when(
+    Kilometers < 50000 ~ "Baixa",
+    Kilometers >= 50000 & Kilometers < 150000 ~ "Média",
+    Kilometers >= 150000 ~ "Alta",
+    TRUE ~ NA_character_
+  ))
+
+# Remover NAs
+dados_anova <- na.omit(dados)
+
+# ANOVA
+anova_model <- aov(Price ~ km_faixa, data = dados_anova)
+summary(anova_model)
+```
+```r
+# Carregar os dados
+dados <- read.csv("car_prices.csv", stringsAsFactors = FALSE)
+
+# Remover valores ausentes da variável de interesse
+dados <- dados %>% filter(!is.na(Price), Brand %in% c("Fiat", "Chevrolet"))
+
+# Separar os grupos
+fiat <- dados %>% filter(Brand == "Fiat") %>% pull(Price)
+chevrolet <- dados %>% filter(Brand == "Chevrolet") %>% pull(Price)
+
+# Medianas para referência
+cat("Mediana Fiat:", median(fiat), "\n")
+cat("Mediana Chevrolet:", median(chevrolet), "\n")
+
+# Teste de Wilcoxon (não paramétrico)
+teste <- wilcox.test(fiat, chevrolet, alternative = "two.sided")
+
+# Resultado
+print(teste)
+
+# Interpretação simples
+if (teste$p.value < 0.05) {
+  cat("Rejeitamos H0: Há diferença significativa entre os preços.\n")
+} else {
+  cat("Não rejeitamos H0: Não há diferença significativa.\n")
+}
+```
 -----
 
 ## 5\. Figuras Geradas e Explicações
@@ -249,7 +300,25 @@ As medidas de posição (quartis e percentis) também mostram que 75% dos preço
   * **Resultado:**
 ```r
     # Código R do teste
-    wilcox.test(fiat, chevrolet, alternative = "two.sided")
+    dados <- read.csv("car_prices.csv", stringsAsFactors = FALSE)
+    # Remover valores ausentes da variável de interesse
+    dados <- dados %>% filter(!is.na(Price), Brand %in% c("Fiat", "Chevrolet"))
+    # Separar os grupos
+    fiat <- dados %>% filter(Brand == "Fiat") %>% pull(Price)
+    chevrolet <- dados %>% filter(Brand == "Chevrolet") %>% pull(Price)
+    # Medianas para referência
+    cat("Mediana Fiat:", median(fiat), "\n")
+    cat("Mediana Chevrolet:", median(chevrolet), "\n")
+    # Teste de Wilcoxon (não paramétrico)
+    teste <- wilcox.test(fiat, chevrolet, alternative = "two.sided")
+    # Resultado
+    print(teste)
+    # Interpretação simples
+    if (teste$p.value < 0.05) {
+      cat("Rejeitamos H0: Há diferença significativa entre os preços.\n")
+    } else {
+      cat("Não rejeitamos H0: Não há diferença significativa.\n")
+    }
 ```
   * **P-valor:**  0.0003221
   * **Interpretação:** Com um p-valor de 0.00032, inferior ao nível de significância de 0.05, rejeitamos a hipótese nula. Isso indica que há evidências suficientes para afirmar que existe uma diferença significativa entre os preços dos carros das marcas Fiat e Chevrolet.

@@ -180,8 +180,6 @@ medidas <- data.frame(
 # Exibir a tabela (no R Markdown ou relatório)
 print(medidas)
 
-# Se quiser em tabela mais bonita no relatório:
-# install.packages("knitr") # se ainda não tiver
 library(knitr)
 kable(medidas, caption = "Medidas Estatísticas do Preço dos Carros")
 
